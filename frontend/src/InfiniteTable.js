@@ -14,6 +14,7 @@ export default function InfiniteTable() {
     const [selectedRow, setSelectedRow] = useState(null);
 
     const loaderRef = useRef(null);
+    const didInit = useRef(false); // ✅ Stop double fetch in StrictMode
 
     const loadMore = useCallback(async () => {
         if (loading || !hasMore) return;
@@ -21,23 +22,37 @@ export default function InfiniteTable() {
         setLoading(true);
         setError(null);
 
-
         try {
             const API_URL = process.env.REACT_APP_API_URL;
-
             const res = await fetch(`${API_URL}/api/sensor-data?skip=${skip}&limit=20`);
             const json = await res.json();
 
+            console.log("API RESULT =>", {
+                skipSent: skip,
+                rowsReturned: json.data?.length,
+                nextSkipFromBackend: json.nextSkip,
+                hasMoreFromBackend: json.hasMore
+            });
 
             if (!json.success) throw new Error(json.message);
 
-            if (!json.data.length) {
+            // ✅ No more data
+            if (json.data.length === 0) {
                 setHasMore(false);
                 return;
             }
 
+            // ✅ Prevent re-loading same page
+            if (json.nextSkip === skip) {
+                setHasMore(false);
+                return;
+            }
+
+            // ✅ Append data
             setData(prev => [...prev, ...json.data]);
             setSkip(json.nextSkip);
+            setHasMore(json.hasMore);
+
         } catch (err) {
             setError(err.message);
         } finally {
@@ -45,10 +60,15 @@ export default function InfiniteTable() {
         }
     }, [loading, hasMore, skip]);
 
+    // ✅ Load only once on mount (not on re-render)
     useEffect(() => {
-        loadMore();
-    }, [loadMore]);
+        if (!didInit.current) {
+            didInit.current = true;
+            loadMore();
+        }
+    }, []);
 
+    // ✅ Infinite scroll observer
     useEffect(() => {
         const observer = new IntersectionObserver(entries => {
             if (entries[0].isIntersecting && !loading && hasMore) {
@@ -58,14 +78,10 @@ export default function InfiniteTable() {
 
         const current = loaderRef.current;
         if (current) observer.observe(current);
-
-        return () => {
-            if (current) observer.unobserve(current);
-        };
+        return () => current && observer.unobserve(current);
     }, [loadMore, loading, hasMore]);
 
     const distances = [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000];
-
     const pressureData = selectedRow ? distances.map(d => selectedRow[`P_${d}`]) : [];
     const acousticData = selectedRow ? distances.map(d => selectedRow[`A_${d}`]) : [];
 
@@ -96,17 +112,16 @@ export default function InfiniteTable() {
                 </table>
 
                 <div ref={loaderRef} className="loader">
-                    {loading && "Loading..."}
+                    {loading && hasMore && "Loading..."}
                     {!hasMore && "✅ No more records"}
                     {error && <div style={{ color: "red" }}>⚠ {error}</div>}
                 </div>
             </div>
 
-            {/* ✅ Modal Popup */}
+            {/* ✅ Details modal */}
             {selectedRow && (
                 <div className="modal-overlay" onClick={() => setSelectedRow(null)}>
-                    <div className="modal-box" onClick={(e) => e.stopPropagation()}>
-
+                    <div className="modal-box" onClick={e => e.stopPropagation()}>
                         <span className="close-btn" onClick={() => setSelectedRow(null)}>×</span>
 
                         <h3>Run ID: {selectedRow.Run_ID}</h3>
