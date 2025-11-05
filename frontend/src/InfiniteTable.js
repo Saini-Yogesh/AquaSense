@@ -97,11 +97,11 @@ export default function InfiniteTable() {
                 <table className="data-table">
                     <thead>
                         <tr>
-                            <th>Run</th>
-                            <th>P_0</th>
-                            <th>A_0</th>
-                            <th>Leak</th>
-                            <th>Action</th>
+                            <th>Run ID</th> {/* Unique simulation number */}
+                            <th>Inlet Pressure (P₀)</th> {/* Pressure at first sensor (Pa) */}
+                            <th>Inlet Acoustic (A₀)</th> {/* Acoustic voltage at first sensor (V) */}
+                            <th>Leak Status</th> {/* Leak or No Leak */}
+                            <th>Action</th> {/* View detailed calculation */}
                         </tr>
                     </thead>
                     <tbody>

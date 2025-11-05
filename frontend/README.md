@@ -1,6 +1,95 @@
-# Getting Started with Create React App
+# AquaSense Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+The frontend application for AquaSense water leak detection system built with React.js.
+
+## Directory Structure
+
+```
+frontend/
+├── .env                    # Environment variables
+├── .gitignore             # Git ignore rules
+├── package.json           # Project dependencies and scripts
+├── public/               
+│   ├── index.html        # Main HTML template
+│   └── manifest.json     # Web app manifest file
+└── src/
+    ├── App.js            # Main application component
+    ├── App.css           # Main application styles
+    ├── index.js          # Application entry point
+    ├── index.css         # Global styles
+    ├── InfiniteTable.js  # Component for displaying sensor data
+    ├── InfiniteTable.css # Styles for data table
+    ├── LeakDetailsPage.js    # Leak details component
+    ├── LeakDetailsPage.css   # Leak details styles
+    ├── reportWebVitals.js    # Performance monitoring
+    ├── setupTests.js         # Test configuration
+    └── App.test.js          # App component tests
+```
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v14 or higher)
+- npm (v6 or higher)
+
+### Installation
+
+1. Install dependencies:
+```bash
+npm install
+```
+
+2. Set up environment variables:
+Create a `.env` file in the frontend directory with:
+```
+REACT_APP_API_URL=http://localhost:3000
+```
+
+3. Start the development server:
+```bash
+npm start
+```
+
+The application will be available at `http://localhost:3000`
+
+## Components
+
+### App.js
+The main application component that handles routing and layout.
+
+### InfiniteTable
+A table component with infinite scrolling functionality for displaying sensor data efficiently.
+
+Features:
+- Virtual scrolling for handling large datasets
+- Real-time data updates
+- Sortable columns
+- Filterable data
+
+### LeakDetailsPage
+Detailed view for individual leak incidents.
+
+Features:
+- Comprehensive leak information
+- Historical data visualization
+- Status tracking
+- Action logging
+
+## State Management
+
+The application uses React's built-in state management with hooks for:
+- User interface state
+- Data caching
+- Real-time updates
+- Filter preferences
+
+## API Integration
+
+The frontend communicates with the backend through RESTful API endpoints:
+- GET `/api/sensors` - Fetch sensor data
+- GET `/api/leaks` - Fetch leak reports
+- POST `/api/alerts` - Create new alerts
 
 ## Available Scripts
 
