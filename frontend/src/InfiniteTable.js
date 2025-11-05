@@ -2,6 +2,8 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import "./InfiniteTable.css";
 import { Line } from "react-chartjs-2";
 import { Chart, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend } from "chart.js";
+import { useNavigate } from "react-router-dom";
+import { FaChartLine } from "react-icons/fa";
 
 Chart.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
@@ -15,6 +17,7 @@ export default function InfiniteTable() {
 
     const loaderRef = useRef(null);
     const didInit = useRef(false); // ✅ Stop double fetch in StrictMode
+    const navigate = useNavigate(); // 🆕 for redirect
 
     const loadMore = useCallback(async () => {
         if (loading || !hasMore) return;
@@ -66,6 +69,7 @@ export default function InfiniteTable() {
             didInit.current = true;
             loadMore();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // ✅ Infinite scroll observer
@@ -97,6 +101,7 @@ export default function InfiniteTable() {
                             <th>P_0</th>
                             <th>A_0</th>
                             <th>Leak</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -105,7 +110,31 @@ export default function InfiniteTable() {
                                 <td>{row.Run_ID}</td>
                                 <td>{row.P_0}</td>
                                 <td>{row.A_0}</td>
-                                <td>{row.LeakLabel}</td>
+                                <td>
+                                    <span
+                                        className={
+                                            row.LeakLabel?.toLowerCase() === "leak"
+                                                ? "leak"
+                                                : "no-leak"
+                                        }
+                                    >
+                                        {row.LeakLabel}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <button
+                                        className="inline-btn"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            navigate(`/${row.Run_ID}`, { state: { row } });
+                                        }}
+                                    >
+                                        <FaChartLine style={{ marginRight: "6px" }} />
+                                        Analyze
+                                    </button>
+                                </td>
+
                             </tr>
                         ))}
                     </tbody>

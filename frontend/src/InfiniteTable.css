@@ -139,3 +139,32 @@ h4 {
     padding: 5px;
   }
 }
+
+/* Leak: red color */
+.leak {
+  color: #d93025;
+  font-weight: bold;
+}
+
+/* No Leak: green color */
+.no-leak {
+  color: #2e7d32;
+  font-weight: bold;
+}
+
+.inline-btn {
+  background: none;
+  border: 1px solid #007bff;
+  color: #007bff;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.inline-btn:hover {
+  background: #007bff;
+  color: #fff;
+}

@@ -1,0 +1,149 @@
+/* LeakDetailsPage.css - responsive, clean step-by-step layout */
+.details-container {
+  padding: 18px;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial;
+  max-width: 1100px;
+  margin: 0 auto 40px auto;
+  color: #111;
+}
+
+/* header */
+h2 {
+  margin: 4px 0 18px 0;
+}
+
+/* summary grid */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.summary-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 2px 8px rgba(19, 24, 31, 0.05);
+}
+.summary-label {
+  color: #666;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+.summary-value {
+  font-weight: 700;
+  font-size: 16px;
+}
+.summary-value.leak-yes {
+  color: #d93025;
+}
+.summary-value.leak-no {
+  color: #2e7d32;
+}
+
+/* data table */
+.table-responsive {
+  overflow-x: auto;
+  margin-bottom: 18px;
+}
+.data-table-detailed {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+.data-table-detailed th,
+.data-table-detailed td {
+  text-align: center;
+  padding: 8px 10px;
+  border-bottom: 1px solid #f0f2f5;
+}
+.data-table-detailed thead th {
+  background: #fafbfc;
+  font-weight: 600;
+  color: #333;
+}
+.highlight-row {
+  background: rgba(255, 159, 64, 0.04);
+}
+
+/* charts container */
+.charts-separate {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.chart-card {
+  background: #fff;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(19, 24, 31, 0.04);
+}
+.chart-area {
+  height: 400px;
+}
+
+/* calculation blocks */
+.calc-block {
+  background: #fff;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+.calc-title {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.calc-formula {
+  font-family: monospace;
+  background: #f7f9fb;
+  padding: 8px;
+  border-radius: 6px;
+  color: #111;
+  margin-bottom: 6px;
+}
+.calc-sub {
+  color: #444;
+  margin-bottom: 6px;
+}
+.calc-eval {
+  font-weight: 700;
+  margin-top: 6px;
+}
+
+/* centroid table */
+.centroid-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.centroid-table th,
+.centroid-table td {
+  padding: 6px 8px;
+  border: 1px solid #eef2f6;
+  text-align: left;
+  font-family: monospace;
+}
+.centroid-table tfoot td {
+  font-weight: 700;
+  background: #fbfcfd;
+}
+
+/* responsive adjustments */
+@media (max-width: 900px) {
+  .chart-area {
+    height: 300px;
+  }
+}
+@media (max-width: 520px) {
+  .summary-grid {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+  .chart-area {
+    height: 200px;
+  }
+  .calc-formula {
+    font-size: 13px;
+  }
+}
