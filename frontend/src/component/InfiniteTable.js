@@ -127,7 +127,7 @@ export default function InfiniteTable() {
                                         className="inline-btn"
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            navigate(`/${row.Run_ID}`, { state: { row } });
+                                            navigate(`/data/${row.Run_ID}`, { state: { row } });
                                         }}
                                     >
                                         <FaChartLine style={{ marginRight: "6px" }} />

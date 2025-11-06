@@ -1,0 +1,108 @@
+/* Root layout */
+.home-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 100vh;
+  background: #f7f9fc; /* clean neutral background */
+  color: #1f2937;
+  padding: 40px 20px;
+  font-family: "Inter", "Segoe UI", Arial, sans-serif;
+}
+
+/* Content box */
+.home-content {
+  max-width: 850px;
+  margin: 0 auto;
+  text-align: center;
+  background: white;
+  border-radius: 14px;
+  padding: 50px 40px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+/* Heading */
+.home-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #0a4d8c;
+  margin-bottom: 20px;
+}
+
+/* Description paragraph */
+.home-description {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: #4b5563;
+  margin-bottom: 40px;
+}
+
+/* Button layout */
+.button-group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+/* Buttons */
+.home-btn {
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  padding: 12px 28px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+/* Primary: View Sensor Data */
+.home-btn.primary {
+  background: #0a4d8c;
+  color: #ffffff;
+}
+
+.home-btn.primary:hover {
+  background: #093b6c;
+  transform: translateY(-2px);
+}
+
+/* Secondary: Train/Test ML */
+.home-btn.secondary {
+  background: #f3f4f6;
+  color: #0a4d8c;
+  border: 1.5px solid #cbd5e1;
+}
+
+.home-btn.secondary:hover {
+  background: #e5e7eb;
+  transform: translateY(-2px);
+}
+
+/* Footer */
+.home-footer {
+  text-align: center;
+  margin-top: 40px;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .home-content {
+    padding: 35px 20px;
+  }
+
+  .home-title {
+    font-size: 1.8rem;
+  }
+
+  .home-description {
+    font-size: 0.95rem;
+  }
+
+  .home-btn {
+    width: 90%;
+    font-size: 1rem;
+  }
+}

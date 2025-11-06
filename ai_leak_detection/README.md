@@ -1,0 +1,1 @@
+[Chatgpt link for the chat](https://chatgpt.com/c/690b9672-077c-8322-83c7-e155a1a79444)
