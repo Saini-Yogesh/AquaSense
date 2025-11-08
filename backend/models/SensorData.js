@@ -29,7 +29,8 @@ const sensorSchema = new mongoose.Schema({
     A_900: { type: Number, required: true },
     A_1000: { type: Number, required: true },
 
-    LeakLabel: { type: String, required: true, enum: ["leak", "not leak"] }
+    LeakLabel: { type: String, required: true, enum: ["leak", "not leak"] },
+    Leak_Location: { type: Number, default: null },
 
 }, { timestamps: true });
 

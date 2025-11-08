@@ -1,0 +1,27 @@
+{
+  "dependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "name": "aquasense",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "backend": "cd backend && nodemon server.js",
+    "frontend": "cd frontend && npm start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Saini-Yogesh/AquaSense.git"
+  },
+  "keywords": [],
+  "author": "Yogesh Saini",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Saini-Yogesh/AquaSense/issues"
+  },
+  "homepage": "https://github.com/Saini-Yogesh/AquaSense#readme"
+}

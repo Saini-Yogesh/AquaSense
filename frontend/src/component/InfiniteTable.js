@@ -19,6 +19,22 @@ export default function InfiniteTable() {
     const didInit = useRef(false); // ✅ Stop double fetch in StrictMode
     const navigate = useNavigate(); // 🆕 for redirect
 
+    useEffect(() => {
+        const handleEsc = (e) => {
+            if (e.key === "Escape") {
+                setSelectedRow(null); // close modal
+            }
+        };
+
+        if (selectedRow) {
+            document.addEventListener("keydown", handleEsc);
+        }
+
+        return () => {
+            document.removeEventListener("keydown", handleEsc);
+        };
+    }, [selectedRow]);
+
     const loadMore = useCallback(async () => {
         if (loading || !hasMore) return;
 
