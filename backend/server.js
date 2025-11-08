@@ -37,74 +37,100 @@ app.use("/api/sensor-data", sensorRoutes);
 // ==================================================================
 //
 
-// 📂 File upload setup (for CSV dataset)
 const upload = multer({ dest: "uploads/" });
 
-// 🧩 Train model endpoint
+// ==================================================================
+// 🧩 TRAIN MODEL ENDPOINT
+// ==================================================================
 app.post("/api/train", upload.single("file"), (req, res) => {
-    const dataPath = req.file ? req.file.path : "ai_leak_detection/data/leak_data.csv";
+    const uploadedFile = req.file?.path;
+    const scriptPath = path.join(
+        process.cwd(),
+        "../ai_leak_detection/src/train_model.py"
+    );
 
-    const py = spawn("python", ["../ai_leak_detection/src/train_model.py", dataPath]);
+    console.log("🚀 Training model using:", uploadedFile || "default dataset");
 
+    // Pass uploaded file path if provided
+    const args = uploadedFile ? [scriptPath, uploadedFile] : [scriptPath];
+    const py = spawn("python", args);
 
     let output = "";
-    py.stdout.on("data", (data) => (output += data.toString()));
+    py.stdout.on("data", (data) => {
+        const text = data.toString();
+        console.log("PYTHON:", text);
+        output += text;
+    });
+
     py.stderr.on("data", (data) => console.error("Python Error:", data.toString()));
 
     py.on("close", () => {
         try {
-            const result = JSON.parse(output);
+            // 🧠 Extract the last line of Python output (should be valid JSON)
+            const lines = output.trim().split("\n");
+            const lastLine = lines[lines.length - 1];
+            const result = JSON.parse(lastLine);
+
+            res.json({
+                status: "ok",
+                accuracy: result.accuracy,
+                mae: result.mae,
+                message: "Training complete",
+            });
+        } catch (err) {
+            console.error("❌ JSON Parse Error (train):", err);
+            console.error("Raw Output:", output);
+            res.status(500).json({
+                status: "error",
+                message: "Training failed — invalid Python output",
+            });
+        }
+
+        // ✅ Fixed cleanup variable name
+        if (uploadedFile && fs.existsSync(uploadedFile)) fs.unlinkSync(uploadedFile);
+    });
+});
+
+// ==================================================================
+// 🧩 PREDICT FROM CSV ENDPOINT
+// ==================================================================
+app.post("/api/predict-csv", upload.single("file"), (req, res) => {
+    if (!req.file) return res.status(400).json({ error: "No file uploaded" });
+
+    const dataPath = path.resolve(req.file.path);
+    const scriptPath = path.join(
+        process.cwd(),
+        "../ai_leak_detection/src/predict_csv.py"
+    );
+
+    console.log("🔍 Running CSV prediction for:", dataPath);
+
+    const py = spawn("python", [scriptPath, dataPath]);
+
+    let output = "";
+    py.stdout.on("data", (data) => (output += data.toString()));
+    py.stderr.on("data", (data) =>
+        console.error("Python Error:", data.toString())
+    );
+
+    py.on("close", () => {
+        try {
+            // 🧠 Extract the last valid JSON line (ignore any log text)
+            const lines = output.trim().split("\n");
+            const lastLine = lines[lines.length - 1].trim();
+
+            const result = JSON.parse(lastLine);
             res.json(result);
         } catch (err) {
-            console.error("Parse Error:", err);
-            res.status(500).json({ status: "error", message: "Training failed" });
+            console.error("❌ JSON Parse Error (predict-csv):", err);
+            console.error("Raw Output:", output);
+            res.status(500).json({ error: "CSV Prediction failed" });
         }
 
-        // Remove uploaded file (optional)
-        if (req.file) fs.unlinkSync(req.file.path);
+        // Clean up uploaded file
+        if (fs.existsSync(dataPath)) fs.unlinkSync(dataPath);
     });
 });
-
-// 🔍 Predict endpoint
-app.post("/api/predict", (req, res) => {
-    const py = spawn("python", ["../ai_leak_detection/src/predict.py"]);
-
-    let output = "";
-    py.stdin.write(JSON.stringify(req.body));
-    py.stdin.end();
-
-    py.stdout.on("data", (data) => (output += data.toString()));
-    py.stderr.on("data", (data) => console.error("Python Error:", data.toString()));
-
-    py.on("close", () => {
-        try {
-            res.json(JSON.parse(output));
-        } catch {
-            res.status(500).json({ status: "error", message: "Prediction failed" });
-        }
-    });
-});
-
-// 🧩 Predict from CSV
-app.post("/api/predict-csv", upload.single("file"), (req, res) => {
-    const dataPath = req.file.path;
-    const py = spawn("python", ["../ai_leak_detection/src/predict_csv.py", dataPath]);
-
-    let output = "";
-    py.stdout.on("data", (data) => (output += data.toString()));
-    py.stderr.on("data", (data) => console.error("Python Error:", data.toString()));
-
-    py.on("close", () => {
-        try {
-            const result = JSON.parse(output);
-            res.json(result);
-        } catch {
-            res.status(500).json({ status: "error", message: "CSV Prediction failed" });
-        }
-        if (req.file) fs.unlinkSync(req.file.path);
-    });
-});
-
 
 // ==================================================================
 // ✅ Start Server

@@ -1,29 +1,84 @@
-import pandas as pd
-import joblib, os, json, sys
+# ===============================================================
+# File: train_model.py
+# Description: Train two ML models
+#   1. Leak Detection (classification)
+#   2. Leak Localization (regression)
+# Author: Yogesh Saini
+# ===============================================================
+
+import os
+import sys
+import json
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.metrics import accuracy_score, mean_absolute_error
+from joblib import dump
+from preprocess import load_and_preprocess
 
-DATA_PATH = sys.argv[1] if len(sys.argv) > 1 else "../data/leak_data.csv"
-MODEL_PATH = "../models"
+# --- Fix Windows console encoding (no emoji crash) ---
+sys.stdout.reconfigure(encoding='utf-8')
 
-df = pd.read_csv(DATA_PATH)
-df['LeakLabel'] = df['LeakLabel'].map({'leak': 1, 'not leak': 0})
+# ---------------- READ DATA PATH ARGUMENT ----------------
+if len(sys.argv) > 1:
+    DATA_PATH = sys.argv[1]
+else:
+    DATA_PATH = "../data/pipeline_sensor_data.csv"
 
-X = df.drop(['Run_ID', 'LeakLabel'], axis=1)
-y = df['LeakLabel']
+MODEL_DIR = "../models"
+os.makedirs(MODEL_DIR, exist_ok=True)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+print(f"\nUsing dataset: {DATA_PATH}")
+
+# ---------------- LOAD & PREPROCESS ----------------
+X, y_class, y_loc = load_and_preprocess(DATA_PATH)
+
+# ---------------- CLASSIFICATION MODEL ----------------
+print("\nTraining Leak Detection Model (Classification)...")
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y_class, test_size=0.2, random_state=42
+)
 
 clf = RandomForestClassifier(n_estimators=200, random_state=42)
 clf.fit(X_train, y_train)
 
 y_pred = clf.predict(X_test)
 acc = accuracy_score(y_test, y_pred)
-cm = confusion_matrix(y_test, y_pred).tolist()
+print(f"Leak detection accuracy: {acc*100:.2f}%")
 
-os.makedirs(MODEL_PATH, exist_ok=True)
-joblib.dump(clf, f"{MODEL_PATH}/leak_detector.pkl")
+dump(clf, os.path.join(MODEL_DIR, "leak_detector.pkl"))
+print("Saved: models/leak_detector.pkl")
 
-# Print JSON so Node can capture
-print(json.dumps({"status": "success", "accuracy": acc, "confusion_matrix": cm}))
+# ---------------- REGRESSION MODEL ----------------
+print("\nTraining Leak Localization Model (Regression)...")
+
+X_leak = X[y_class == 1]
+y_leak = y_loc[y_class == 1]
+
+mae = None
+if len(X_leak) == 0:
+    print("No leak samples found — skipping leak location model.")
+else:
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_leak, y_leak, test_size=0.2, random_state=42
+    )
+
+    reg = RandomForestRegressor(n_estimators=200, random_state=42)
+    reg.fit(X_train, y_train)
+
+    y_pred = reg.predict(X_test)
+    mae = mean_absolute_error(y_test, y_pred)
+    print(f"Leak location MAE: {mae:.2f} meters")
+
+    dump(reg, os.path.join(MODEL_DIR, "leak_locator.pkl"))
+    print("Saved: models/leak_locator.pkl")
+
+print("\nTraining Complete!")
+
+# ---------------- RETURN JSON OUTPUT ----------------
+result = {
+    "accuracy": acc,
+    "mae": mae,
+    "status": "training_complete"
+}
+print(json.dumps(result))

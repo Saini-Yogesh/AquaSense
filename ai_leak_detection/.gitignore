@@ -1,0 +1,26 @@
+venv/
+.env/
+*.env
+
+# Python cache / compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
+
+# Model files (can be large)
+models/*.pkl
+models/*.joblib
+
+# Logs & temp files
+*.log
+*.tmp
+*.bak
+
+# Mac / Windows / VSCode system files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

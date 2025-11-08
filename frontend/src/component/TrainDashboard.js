@@ -7,25 +7,35 @@ export default function TrainDashboard() {
     const [predicting, setPredicting] = useState(false);
     const [csvResults, setCsvResults] = useState(null);
     const [summary, setSummary] = useState(null);
-    const [showManual, setShowManual] = useState(false);
-    const [result, setResult] = useState(null);
+    const [visibleCount, setVisibleCount] = useState(15);
+
+    const API_URL = process.env.REACT_APP_API_URL;
 
     // ---------------- TRAIN MODEL ----------------
     const handleTrain = async (e) => {
         e.preventDefault();
         setLoading(true);
         setAccuracy(null);
+        setSummary(null);
+
         const file = e.target.file.files[0];
         const formData = new FormData();
         formData.append("file", file);
 
         try {
-            const res = await fetch("http://localhost:5000/api/train", {
+            const res = await fetch(`${API_URL}/api/train`, {
                 method: "POST",
                 body: formData,
             });
             const json = await res.json();
-            setAccuracy(json.accuracy);
+            console.log("Train result:", json);
+
+            if (json.status === "ok") {
+                setAccuracy(json.accuracy);
+                setSummary({ mae: json.mae });
+            } else {
+                alert("❌ Training failed: " + (json.message || "Unknown error"));
+            }
         } catch (err) {
             alert("❌ Training failed. Check console for details.");
             console.error(err);
@@ -44,41 +54,17 @@ export default function TrainDashboard() {
         formData.append("file", file);
 
         try {
-            const res = await fetch("http://localhost:5000/api/predict-csv", {
+            const res = await fetch(`${API_URL}/api/predict-csv`, {
                 method: "POST",
                 body: formData,
             });
             const json = await res.json();
+            console.log("Test result:", json);
+
             setCsvResults(json.results);
             setSummary(json.summary);
         } catch (err) {
             alert("❌ CSV Prediction failed. Check console for details.");
-            console.error(err);
-        }
-        setPredicting(false);
-    };
-
-    // ---------------- SINGLE PREDICT ----------------
-    const handlePredict = async (e) => {
-        e.preventDefault();
-        setPredicting(true);
-        setResult(null);
-        const formData = new FormData(e.target);
-        const inputValues = {};
-        for (let [key, value] of formData.entries()) {
-            inputValues[key] = parseFloat(value);
-        }
-
-        try {
-            const res = await fetch("http://localhost:5000/api/predict", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(inputValues),
-            });
-            const json = await res.json();
-            setResult(json);
-        } catch (err) {
-            alert("❌ Prediction failed. Check console for details.");
             console.error(err);
         }
         setPredicting(false);
@@ -100,8 +86,13 @@ export default function TrainDashboard() {
                 {loading && <div className="loader"></div>}
                 {accuracy && (
                     <div className="result success">
-                        ✅ Model trained successfully — Accuracy:{" "}
-                        <strong>{(accuracy * 100).toFixed(2)}%</strong>
+                        ✅ Model trained successfully! <br />
+                        <strong>Accuracy:</strong> {(accuracy * 100).toFixed(2)}% <br />
+                        {summary?.mae && (
+                            <>
+                                <strong>Leak Location MAE:</strong> {summary.mae.toFixed(2)} m
+                            </>
+                        )}
                     </div>
                 )}
             </div>
@@ -162,81 +153,60 @@ export default function TrainDashboard() {
 
                 {csvResults && (
                     <div className="csv-results">
-                        <h3>🧾 Leak Analysis Results (showing up to 10)</h3>
+                        <h3>🧾 Leak Analysis Results</h3>
+
                         <table>
                             <thead>
                                 <tr>
                                     <th>Run ID</th>
                                     <th>Status</th>
-                                    <th>Location (m)</th>
+                                    <th>Predicted Location (m)</th>
+                                    <th>Actual Location (m)</th>
+                                    <th>ΔX (m)</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {csvResults.slice(0, 10).map((r, i) => (
+                                {csvResults.slice(0, visibleCount).map((r, i) => (
                                     <tr key={i}>
                                         <td>{r.Run_ID}</td>
                                         <td className={r.status === "leak" ? "danger-text" : "success-text"}>
                                             {r.status === "leak" ? "Leak Detected" : "No Leak"}
                                         </td>
-                                        <td>{r.location ? r.location.toFixed(1) : "-"}</td>
+                                        <td>{r.location_pred ? r.location_pred.toFixed(2) : "-"}</td>
+                                        <td>{r.actual_location ? r.actual_location.toFixed(2) : "-"}</td>
+                                        <td>
+                                            {r.delta_x !== null && r.delta_x !== undefined
+                                                ? r.delta_x.toFixed(2)
+                                                : "-"}
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
-                        {csvResults.length > 10 && (
-                            <p className="note">⚠️ Only showing first 10 records for performance</p>
-                        )}
-                    </div>
-                )}
-            </div>
 
-            {/* MANUAL ENTRY */}
-            <div className="card manual-entry">
-                <button
-                    className="toggle-btn"
-                    onClick={() => setShowManual(!showManual)}
-                >
-                    {showManual ? "Hide Manual Entry" : "➕ Enter Data Manually"}
-                </button>
+                        {/* Load More / Show Less Controls */}
+                        <div className="load-controls">
+                            {visibleCount < csvResults.length && (
+                                <button
+                                    onClick={() => setVisibleCount((prev) => prev + 15)}
+                                    className="load-more-btn"
+                                >
+                                    Load More ({csvResults.length - visibleCount} remaining)
+                                </button>
+                            )}
 
-                {showManual && (
-                    <form onSubmit={handlePredict} className="predict-form">
-                        <p className="note">Enter pressure & acoustic readings below</p>
-                        <div className="grid-inputs">
-                            {Array.from({ length: 11 }).map((_, i) => (
-                                <div key={i} className="input-box">
-                                    <label>{i * 100} m</label>
-                                    <input
-                                        type="number"
-                                        name={`P_${i * 100}`}
-                                        step="any"
-                                        placeholder="Pressure (Pa)"
-                                        required
-                                    />
-                                    <input
-                                        type="number"
-                                        name={`A_${i * 100}`}
-                                        step="any"
-                                        placeholder="Acoustic (V)"
-                                        required
-                                    />
-                                </div>
-                            ))}
+                            {visibleCount > 15 && (
+                                <button
+                                    onClick={() => {
+                                        setVisibleCount(15);
+                                        window.scrollTo({ top: 0, behavior: "smooth" });
+                                    }}
+                                    className="show-less-btn"
+                                >
+                                    Show Less
+                                </button>
+                            )}
                         </div>
-                        <button type="submit" disabled={predicting}>
-                            {predicting ? "Predicting..." : "Predict Leak"}
-                        </button>
-                    </form>
-                )}
-
-                {result && (
-                    <div
-                        className={`result ${result.status === "leak" ? "danger" : "success"
-                            }`}
-                    >
-                        {result.status === "leak"
-                            ? `🚨 Leak Detected at ${result.location.toFixed(1)} m`
-                            : "✅ No Leak Detected"}
                     </div>
                 )}
             </div>

@@ -25,15 +25,13 @@
   color: #333;
 }
 
-.train-form,
-.predict-form {
+.train-form {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-input[type="file"],
-input[type="number"] {
+input[type="file"] {
   border: 1px solid #ccc;
   border-radius: 8px;
   padding: 8px 10px;
@@ -54,11 +52,6 @@ button {
 
 button:hover {
   background: #005fa3;
-}
-
-.toggle-btn {
-  width: 100%;
-  font-weight: 600;
 }
 
 .loader {
@@ -87,11 +80,6 @@ button:hover {
 .result.success {
   background: #e6ffed;
   color: #16794d;
-}
-
-.result.danger {
-  background: #ffecec;
-  color: #c40000;
 }
 
 .csv-sample {
@@ -156,25 +144,6 @@ button:hover {
   font-weight: 600;
 }
 
-.grid-inputs {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 10px;
-}
-
-.input-box {
-  background: #f8faff;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #dde;
-}
-
-.input-box label {
-  font-size: 0.9rem;
-  color: #0077cc;
-  font-weight: 600;
-}
-
 .note {
   font-size: 0.85rem;
   color: #666;
@@ -191,4 +160,35 @@ button:hover {
   .csv-results table {
     font-size: 0.85rem;
   }
+}
+
+.load-controls {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.load-more-btn,
+.show-less-btn {
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+  font-size: 0.95rem;
+}
+
+.load-more-btn:hover,
+.show-less-btn:hover {
+  background-color: #125ca1;
+}
+
+.show-less-btn {
+  background-color: #9e9e9e;
+}
+
+.show-less-btn:hover {
+  background-color: #757575;
 }
