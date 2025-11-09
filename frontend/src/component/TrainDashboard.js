@@ -90,7 +90,7 @@ export default function TrainDashboard() {
                         <strong>Accuracy:</strong> {(accuracy * 100).toFixed(2)}% <br />
                         {summary?.mae && (
                             <>
-                                <strong>Leak Location MAE:</strong> {summary.mae.toFixed(2)} m
+                                <strong>Leak Location MAE(Mean Absolute Error):</strong> {summary.mae.toFixed(2)} m
                             </>
                         )}
                     </div>
@@ -114,7 +114,8 @@ export default function TrainDashboard() {
                                     <th>A_0</th>
                                     <th>...</th>
                                     <th>A_1000</th>
-                                    {/* <th>LeakLabel (optional)</th> */}
+                                    <th>LeakLabel</th>
+                                    <th>Leak_Location</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -126,7 +127,8 @@ export default function TrainDashboard() {
                                     <td>0.036</td>
                                     <td>...</td>
                                     <td>-0.003</td>
-                                    {/* <td>leak</td> */}
+                                    <td>leak</td>
+                                    <td>163</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -135,7 +137,7 @@ export default function TrainDashboard() {
 
                 <form onSubmit={handleCsvPredict}>
                     <input type="file" name="file" accept=".csv" required />
-                    <button type="submit" disabled={predicting} style={{ "marginTop": "10px" }}>
+                    <button type="submit" disabled={predicting} style={{ "marginTop": "10px", width: "100%" }}>
                         {predicting ? "Analyzing..." : "Check CSV for Leaks"}
                     </button>
                 </form>
@@ -144,10 +146,20 @@ export default function TrainDashboard() {
 
                 {summary && (
                     <div className="summary-box">
-                        <h3>📈 Summary</h3>
+                        <h3>📈 Test Summary</h3>
                         <p>Total Runs: {summary.total}</p>
-                        <p>Leaks: <span className="danger-text">{summary.leak}</span></p>
-                        <p>No Leaks: <span className="success-text">{summary.no_leak}</span></p>
+                        <p>
+                            Leaks: <span className="danger-text">{summary.leak}</span>
+                        </p>
+                        <p>
+                            No Leaks: <span className="success-text">{summary.no_leak}</span>
+                        </p>
+                        {summary.avg_delta_x !== null && summary.avg_delta_x !== undefined && (
+                            <p>
+                                Average ΔX (Leak Location Error):{" "}
+                                <strong>{summary.avg_delta_x.toFixed(2)} m</strong>
+                            </p>
+                        )}
                     </div>
                 )}
 

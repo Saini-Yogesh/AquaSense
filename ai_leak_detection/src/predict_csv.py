@@ -110,8 +110,19 @@ no_leak_count = total - leak_count
 
 summary = {"total": total, "leak": leak_count, "no_leak": no_leak_count}
 
-# ---------------- OUTPUT JSON ----------------
-output = {"summary": summary, "results": results}
+# ---------------- CALCULATE AVG ΔX ----------------
+delta_values = [r["delta_x"] for r in results if r["delta_x"] is not None]
+avg_delta_x = float(np.mean(delta_values)) if len(delta_values) > 0 else None
 
-# ✅ This is the ONLY print statement the backend will parse
+# ---------------- OUTPUT JSON ----------------
+output = {
+    "summary": {
+        "total": total,
+        "leak": leak_count,
+        "no_leak": no_leak_count,
+        "avg_delta_x": avg_delta_x
+    },
+    "results": results
+}
+
 print(json.dumps(output))

@@ -24,7 +24,9 @@ if len(sys.argv) > 1:
 else:
     DATA_PATH = "../data/pipeline_sensor_data.csv"
 
-MODEL_DIR = "../models"
+# Get absolute path of the script directory
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_DIR = os.path.join(SCRIPT_DIR, "../models")
 os.makedirs(MODEL_DIR, exist_ok=True)
 
 print(f"\nUsing dataset: {DATA_PATH}")
