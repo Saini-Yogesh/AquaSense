@@ -1,1 +1,4 @@
 /node_modules
+# Ignore model files
+models/*.pkl
+ai_leak_detection/models/*.pkl
