@@ -1,7 +1,9 @@
 import { useState } from "react";
 import "./TrainDashboard.css";
+import LeakVisualizationPopup from "./LeakVisualizationPopup"; // Add import at top
 
 export default function TrainDashboard() {
+    const [selectedLeak, setSelectedLeak] = useState(null);
     const [accuracy, setAccuracy] = useState(null);
     const [loading, setLoading] = useState(false);
     const [predicting, setPredicting] = useState(false);
@@ -130,6 +132,28 @@ export default function TrainDashboard() {
                                     <td>leak</td>
                                     <td>163</td>
                                 </tr>
+                                <tr>
+                                    <td>...</td>
+                                    <td>...</td>
+                                    <td>...</td>
+                                    <td>...</td>
+                                    <td>...</td>
+                                    <td>...</td>
+                                    <td>...</td>
+                                    <td>...</td>
+                                    <td>...</td>
+                                </tr>
+                                <tr>
+                                    <td>...</td>
+                                    <td>...</td>
+                                    <td>...</td>
+                                    <td>...</td>
+                                    <td>...</td>
+                                    <td>...</td>
+                                    <td>...</td>
+                                    <td>...</td>
+                                    <td>...</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -179,22 +203,29 @@ export default function TrainDashboard() {
                             </thead>
                             <tbody>
                                 {csvResults.slice(0, visibleCount).map((r, i) => (
-                                    <tr key={i}>
+                                    <tr
+                                        key={i}
+                                        onClick={() => setSelectedLeak(r)}
+                                        style={{ cursor: "pointer" }}
+                                    >
                                         <td>{r.Run_ID}</td>
                                         <td className={r.status === "leak" ? "danger-text" : "success-text"}>
                                             {r.status === "leak" ? "Leak Detected" : "No Leak"}
                                         </td>
                                         <td>{r.location_pred ? r.location_pred.toFixed(2) : "-"}</td>
                                         <td>{r.actual_location ? r.actual_location.toFixed(2) : "-"}</td>
-                                        <td>
-                                            {r.delta_x !== null && r.delta_x !== undefined
-                                                ? r.delta_x.toFixed(2)
-                                                : "-"}
-                                        </td>
+                                        <td>{r.delta_x !== null && r.delta_x !== undefined ? r.delta_x.toFixed(2) : "-"}</td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
+
+                        {selectedLeak && (
+                            <LeakVisualizationPopup
+                                data={selectedLeak}
+                                onClose={() => setSelectedLeak(null)}
+                            />
+                        )}
 
                         {/* Load More / Show Less Controls */}
                         <div className="load-controls">

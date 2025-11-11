@@ -3,11 +3,10 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 100vh;
-  background: #f7f9fc; /* clean neutral background */
+  min-height: 80vh;
+  background: hsl(216, 45%, 98%); /* clean neutral background */
   color: #1f2937;
   padding: 40px 20px;
-  font-family: "Inter", "Segoe UI", Arial, sans-serif;
 }
 
 /* Content box */

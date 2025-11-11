@@ -1,0 +1,17 @@
+⚠️ IMPORTANT: RUN THIS SCRIPT BEFORE STARTING THE AQUSENCE PROJECT ⚠️
+
+Before running the project, make sure your current working directory is:
+    /aqusence/
+
+This setup step is REQUIRED to install all necessary dependencies for both
+the frontend and backend. The project WILL NOT run correctly if you skip this.
+
+👉 Once you are in the /aqusence/ folder, run the following command in PowerShell:
+
+
+
+cd frontend; npm install; cd ../backend; npm install; cd ..
+
+
+
+✅ After this completes successfully, you can start the project as usual.

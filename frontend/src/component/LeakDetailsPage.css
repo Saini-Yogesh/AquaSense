@@ -167,3 +167,27 @@ h2 {
     font-size: 13px;
   }
 }
+
+.visualize-card {
+  text-align: center;
+}
+
+.visualize-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.visualize-btn:hover {
+  background-color: #0056b3;
+  transform: scale(1.03);
+}
+
+.visualize-btn:active {
+  transform: scale(0.98);
+}

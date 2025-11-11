@@ -9,7 +9,7 @@ export default function Home() {
             <div className="home-content">
                 <h1 className="home-title">🌊 AI-Based Leak Detection Dashboard</h1>
                 <p className="home-description">
-                    This project provides a smart visualization and machine learning platform
+                    This project provides a smart visualization and <b> machine learning platform </b>
                     for real-time leak detection and localization in pipelines. Using simulated
                     pressure and acoustic sensor data, it helps engineers and supervisors
                     identify leaks quickly, estimate their positions, and analyze sensor patterns

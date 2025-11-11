@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { Line } from "react-chartjs-2";
 import "./LeakDetailsPage.css";
+import LeakVisualizationPopup from "./LeakVisualizationPopup";
 
 export default function LeakDetailsPage() {
     const navigate = useNavigate();
@@ -9,6 +10,7 @@ export default function LeakDetailsPage() {
     const { runId } = useParams();
     const row = location.state?.row || {};
     const distances = [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000];
+    const [showPopup, setShowPopup] = React.useState(false);
 
     const toDb = (v) => 20 * Math.log10(Math.max(v, 1e-9));
     const clamp = (v, a, b) => Math.min(Math.max(v, a), b);
@@ -201,12 +203,31 @@ export default function LeakDetailsPage() {
         ]
     };
 
-    const chartOptions = {
+    const chartOptions1 = {
         responsive: true,
         maintainAspectRatio: false,
         scales: {
-            x: { title: { display: true, text: "Distance (m)" } },
-            y: { title: { display: true, text: "Value" } }
+            x: { title: { display: true, text: "Sensor Position (m)" } },
+            y: { title: { display: true, text: "Pressure(Pa)" } }
+        }, elements: {
+            line: {
+                borderWidth: 1.5
+            },
+            point: {
+                radius: 3,
+            }
+        },
+        plugins: {
+            legend: { display: true }
+        }
+    };
+
+    const chartOptions2 = {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            x: { title: { display: true, text: "Sensor Position (m)" } },
+            y: { title: { display: true, text: "Acoustic(V)" } }
         }, elements: {
             line: {
                 borderWidth: 1.5
@@ -253,6 +274,18 @@ export default function LeakDetailsPage() {
                         {leakDetected && diff !== null ? `${fmt(diff, 1)} m` : "N/A"}
                     </div>
                 </div>
+
+                <button
+                    onClick={() => leakDetected && setShowPopup(true)}
+                    className="visualize-btn"
+                    disabled={!leakDetected}
+                    style={{
+                        opacity: leakDetected ? 1 : 0.5,
+                        cursor: leakDetected ? "pointer" : "not-allowed"
+                    }}
+                >
+                    View Leak Visualization
+                </button>
             </div>
 
             {/* ---------- TABLE ---------- */}
@@ -260,7 +293,7 @@ export default function LeakDetailsPage() {
             <div className="table-responsive">
                 <table className="data-table-detailed">
                     <thead>
-                        <tr><th>Sensor (m)</th><th>Pressure (Pa)</th><th>Acoustic (V)</th></tr>
+                        <tr><th>Sensor Position (m)</th><th>Fluid Pressure  (Pa)</th><th>Acoustics of fluid pipe system (V)</th></tr>
                     </thead>
                     <tbody>
                         {distances.map((d, i) => (
@@ -279,13 +312,13 @@ export default function LeakDetailsPage() {
                 <div className="chart-card">
                     <h4>Pressure vs Distance</h4>
                     <div className="chart-area" style={{ height: 240 }}>
-                        <Line data={pressureChart} options={chartOptions} />
+                        <Line data={pressureChart} options={chartOptions1} />
                     </div>
                 </div>
                 <div className="chart-card">
                     <h4>Acoustic vs Distance</h4>
                     <div className="chart-area" style={{ height: 240 }}>
-                        <Line data={acousticChart} options={chartOptions} />
+                        <Line data={acousticChart} options={chartOptions2} />
                     </div>
                 </div>
             </div>
@@ -386,6 +419,19 @@ export default function LeakDetailsPage() {
                     </div>
                 </div>
             )}
+
+            {showPopup && (
+                <LeakVisualizationPopup
+                    onClose={() => setShowPopup(false)}
+                    data={{
+                        Run_ID: runId,
+                        actual_location: actualLocation,
+                        location_pred: estimatedLocation,
+                        delta_x: diff
+                    }}
+                />
+            )}
+
         </div>
     );
 }
